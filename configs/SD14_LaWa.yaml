@@ -1,0 +1,102 @@
+model:
+  target: models.modifiedAEDecoder.LaWa
+  params:
+    scale_factor: 1.0  #0.18215
+    extraction_resize: False
+    start_attack_acc_thresh: 0.5
+    watermark_addition_weight: 0.1
+    learning_rate: 0.00008
+    epoch_num: 200
+    dis_update_freq: 0
+    noise_block_size: 8
+    first_stage_config:
+      target: stable-diffusion.ldm.models.autoencoder.AutoencoderKL
+      params:
+        ckpt_path: weights/first_stage_models/first_stage_KL-f8.ckpt
+        embed_dim: 4
+        monitor: val/rec_loss
+        ddconfig:
+          double_z: true
+          z_channels: 4
+          resolution: 256
+          in_channels: 3
+          out_ch: 3
+          ch: 128
+          ch_mult:
+          - 1
+          - 2
+          - 4
+          - 4
+          num_res_blocks: 2
+          attn_resolutions: []
+          dropout: 0.0
+        lossconfig:
+          target: torch.nn.Identity
+
+    decoder_config:
+      target: models.messageDecoder.MessageDecoder
+      params: 
+        message_len: 48
+
+    
+    discriminator_config:
+      target: models.modifiedAEDecoder.Discriminator1
+  
+    # loss config:
+    recon_type: rgb
+    recon_loss_weight: 0.1
+    adversarial_loss_weight: 1.0
+    perceptual_loss_weight: 1.0
+    message_absolute_loss_weight: 2.0
+    
+    noise_config:
+      target: models.transformations.TransformNet
+      params:
+        ramp: 10000
+        apply_many_crops: False 
+        apply_required_attacks: True
+        required_attack_list: ['rotation', 'resize','random_crop', 'center_crop', 'blur', 'noise','contrast','brightness', 'jpeg']
+    
+data:
+  target: tools.dataset.DataModule
+  params:
+    batch_size: 8
+    num_workers: 8
+    use_worker_init_fn: true
+    train:
+      target: tools.dataset.dataset
+      params:
+        data_dir: /data/mirflickr1m/images
+        data_list: data/train_100k.csv 
+        resize: 256
+    validation:
+      target: tools.dataset.dataset
+      params:
+        data_dir: /data/mirflickr1m/images 
+        data_list: data/val_10k.csv 
+        resize: 256
+
+lightning:
+  callbacks:
+    image_logger:
+      target: models.logger.ImageLogger
+      params:
+        batch_frequency: 5000
+        max_images: 4
+        increase_log_steps: False
+        fixed_input: True
+    progress_bar:
+      target: pytorch_lightning.callbacks.ProgressBar
+      params:
+        refresh_rate: 4
+    checkpoint:
+      target: pytorch_lightning.callbacks.ModelCheckpoint
+      params:
+        verbose: true
+        filename: '{epoch:06}-{step:09}'
+        every_n_train_steps: 5000
+
+  trainer:
+    benchmark: True
+    base_learning_rate: 2e-5
+    accumulate_grad_batches: 1

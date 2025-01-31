@@ -1,5 +1,5 @@
 # LaWa: Using Latent Space for In-Generation Image Watermarking
-This repo contains the demo and the implementation of the paper 'LaWa: Using Latent Space for In-Generation Image Watermarking', published at ECCV2024.
+This repo contains the implementation of the paper 'LaWa: Using Latent Space for In-Generation Image Watermarking', published at ECCV2024.
 
 Link to arXiv paper: https://arxiv.org/abs/2408.05868
 

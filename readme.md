@@ -3,6 +3,8 @@ This repo contains the implementation of the paper 'LaWa: Using Latent Space for
 
 Link to arXiv paper: https://arxiv.org/abs/2408.05868
 
+Link to Huawei's AI Gallery Notebook: https://developer.huaweicloud.com/develop/aigallery/notebook/detail?id=03ccae2a-4fa8-4739-a75b-659a3abcc690
+
 <p align="center">
 <center>
 <img src="https://vbdai-notebooks.obs.cn-north-4.myhuaweicloud.com/lawa/framework.png" alt="alt text" width="1000">
